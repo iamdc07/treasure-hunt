@@ -21,3 +21,8 @@
 
 (def abc [1 2 3])
 (println (assoc abc 0 (inc 1)))
+
+(def xyz ["absdfdc" "xyz" "def"])
+(def newcode (nth xyz 0))
+(def length (count newcode))
+(println length)
