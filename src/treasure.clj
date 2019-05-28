@@ -3,55 +3,57 @@
   (:require [clojure.string :as str]))
 
 (def mapdata)
-(def limitI)
-(def limitJ)
+(def limitR)
+(def limitC)
 
 (defn Find-treasure
   [current data]
-  (def currentI (get current 0))
-  (def currentJ (get current 1))
+  (def currentR (get current 0))
+  (def currentC (get current 1))
 
-  (if (= (nth (nth data currentI) currentJ) \@)
+  (if (= (nth (nth data currentR) currentC) \@)
     (do
-      (println "Yay! Treasure found!!")
+      (println "\nYay! Treasure found!!")
       (doseq [item data]
         (println item))
       (System/exit 0)))
 
-  (if (= (nth (nth data currentI) currentJ) \-)
+  (if (= (nth (nth data currentR) currentC) \-)
     (do
       (def flag false)
-      (def newdata (apply str (map-indexed (fn [i c] (if (= currentJ i) \+ c)) (get data currentI))))
-      (def newmap (assoc data currentI newdata))
+      (def newdata (apply str (map-indexed (fn [i c] (if (= currentC i) \+ c)) (get data currentR))))
+      (def newmap (assoc data currentR newdata))
 
-      (when (< (+ (get current 0) 1) limitI)
-        (def flag false)
+      (when (< (+ (get current 0) 1) limitR)
         (Find-treasure (assoc current 0 (+ (get current 0) 1)) newmap)
-        (def flag true)
-        )
-      (when (< (+ (get current 1) 1) limitJ)
-        (def flag false)
+        (def flag true))
+      (when (< (+ (get current 1) 1) limitC)
         (Find-treasure (assoc current 1 (+ (get current 1) 1)) newmap)
         (def flag true))
       (when (>= (- (get current 0) 1) 0)
-        (def flag false)
         (Find-treasure (assoc current 0 (- (get current 0) 1)) newmap)
         (def flag true))
       (when (>= (- (get current 1) 1) 0)
-        (def flag false)
         (Find-treasure (assoc current 1 (- (get current 1) 1)) newmap)
-        (def flag true)
-        )
+        (def flag true))
       (if flag
         (do
           (def element (apply str (map-indexed (fn [i c] (if (= (get current 1) i) \! c)) (get newmap (get current 0)))))
-          (def newmap (assoc newmap (get current 0) element))
-        )
-      )
-      )
-    )
-  )
+          (def newmap (assoc newmap (get current 0) element)))))))
 
+(defn check-map-validity
+  [mapdata]
+  (def rowsize (count mapdata))
+  (def colsize (count (nth mapdata 0)))
+  (if (>= rowsize 1)
+    (do
+      (if (not= colsize limitC)
+        (do
+          (println "\nInvalid Map!")
+          (System/exit 0)))
+
+      (if (not= rowsize 1)
+        (check-map-validity (subvec mapdata 1))))))
 
 (defn start
   []
@@ -59,12 +61,14 @@
   (println "Treasure Map")
   (doseq [item mapdata]
     (println item))
-  (def limitI (count mapdata))
-  (def limitJ (count (nth mapdata 0)))
+  (def limitR (count mapdata))
+  (def limitC (count (nth mapdata 0)))
+  (check-map-validity mapdata)
   (Find-treasure [0 0] mapdata)
-  (println "Hard luck! No treasure Found!")
+  (println "\nHard luck! No treasure Found!")
   (doseq [item newmap]
-    (println item)))
+    (println item))
+)
 
 
 (start)
