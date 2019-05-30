@@ -42,9 +42,10 @@
           (def newmap (assoc newmap (get current 0) element)))))))
 
 (defn check-map-validity
-  [mapdata]
+  [mapdata treasure]
   (def rowsize (count mapdata))
   (def colsize (count (nth mapdata 0)))
+
   (if (>= rowsize 1)
     (do
       (if (not= colsize limitC)
@@ -52,8 +53,23 @@
           (println "\nInvalid Map!")
           (System/exit 0)))
 
+      (if (str/includes? (nth mapdata 0) "@")
+        (do
+          (def treasurefound true)))
+
       (if (not= rowsize 1)
-        (check-map-validity (subvec mapdata 1))))))
+        (recur (subvec mapdata 1) treasurefound)))))
+
+(defn check-map-empty
+  [mapdata]
+  (def size (alength (to-array mapdata)))
+  (if (= size 1)
+    (do
+      (if (str/blank? (nth mapdata 0))
+        (do
+          (println "Map file is empty!")
+          (System/exit 0))))))
+
 
 (defn start
   []
@@ -61,15 +77,22 @@
   (println "Treasure Map")
   (doseq [item mapdata]
     (println item))
+
   (def limitR (count mapdata))
   (def limitC (count (nth mapdata 0)))
-  (check-map-validity mapdata)
+  (check-map-empty mapdata)
+
+  (check-map-validity mapdata false)
+
+  (if (not= treasurefound true)
+    (do
+      (println "Invalid map, no Treasure in the map!")
+      (System/exit 0)))
+
   (Find-treasure [0 0] mapdata)
   (println "\nHard luck! No treasure Found!")
   (doseq [item newmap]
-    (println item))
-)
+    (println item)))
 
 
 (start)
-
